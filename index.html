@@ -189,78 +189,6 @@
     .tab:hover  { background: var(--ink); color: var(--paper); border-color: var(--ink); }
     .tab.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
-    /* ── FILTERS ── */
-    #filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 24px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--rule);
-      align-items: center;
-    }
-
-    #filters input,
-    #filters select {
-      border: 1px solid var(--rule);
-      background: var(--white);
-      color: var(--ink);
-      padding: 6px 10px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    #filters input:focus,
-    #filters select:focus { border-color: var(--accent); }
-    #filters input { flex: 1; min-width: 180px; }
-
-    #filters button {
-      border: 1px solid var(--rule);
-      background: var(--white);
-      color: var(--ink-muted);
-      padding: 6px 14px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    #filters button:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-
-    /* Category filter pills row */
-    .cat-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      width: 100%;
-      padding-top: 4px;
-    }
-
-    .cat-pill {
-      border: 1px solid var(--rule);
-      background: var(--white);
-      color: var(--ink-muted);
-      padding: 3px 12px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .cat-pill:hover { opacity: 0.8; }
-    .cat-pill.active { color: var(--white); border-color: transparent; }
-    .cat-pill[data-cat="it"].active        { background: var(--tag-it); }
-    .cat-pill[data-cat="economy"].active   { background: var(--tag-economy); }
-    .cat-pill[data-cat="politics"].active  { background: var(--tag-politics); }
-    .cat-pill[data-cat="lt-news"].active   { background: var(--tag-lt); }
-
     /* ── HEADLINE LIST ── */
     #headlines { list-style: none; }
 
@@ -327,42 +255,6 @@
 
     #headlines a:hover   { color: var(--accent); }
     #headlines a:visited { color: var(--ink-muted); }
-
-    /* Category + keyword tags row */
-    .article-tags {
-      grid-column: 2;
-      grid-row: 2;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .atag {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      padding: 1px 6px;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      color: var(--white);
-    }
-
-    .atag-it       { background: var(--tag-it); }
-    .atag-economy  { background: var(--tag-economy); }
-    .atag-politics { background: var(--tag-politics); }
-    .atag-lt-news  { background: var(--tag-lt); }
-
-    /* keyword chips — subtle, outlined */
-    .kword {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      padding: 1px 5px;
-      letter-spacing: 0.05em;
-      color: var(--ink-muted);
-      border: 1px solid var(--rule);
-      white-space: nowrap;
-    }
 
     .meta {
       grid-column: 2;
@@ -581,15 +473,6 @@
       applyFilters();
     }
 
-    // ── CATEGORY PILL TOGGLE ──────────────────────────────
-    function toggleCat(cat) {
-      activecat = activecat === cat ? null : cat;
-      document.querySelectorAll(".cat-pill").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.cat === activecat);
-      });
-      applyFilters();
-    }
-
     // ── APPLY ALL FILTERS ─────────────────────────────────
     function applyFilters() {
       const filtered = allItems.filter(item =>
@@ -602,9 +485,6 @@
     function render(items) {
       const list  = document.getElementById("headlines");
       const empty = document.getElementById("empty");
-      const label = document.getElementById("count-label");
-
-      label.textContent = `${items.length} headline${items.length !== 1 ? "s" : ""}`;
 
       if (items.length === 0) {
         list.innerHTML      = "";
@@ -613,33 +493,16 @@
       }
 
       empty.style.display = "none";
-      list.innerHTML = items.map(item => {
-        // Category tags
-        const catTags = item.categories.map(c =>
-          `<span class="atag atag-${c}">${CAT_LABELS[c]}</span>`
-        ).join("");
-
-        // Keyword chips — only show if there are matched keywords
-        const kwChips = item.keywords.map(kw =>
-          `<span class="kword">${kw}</span>`
-        ).join("");
-
-        const tagsRow = (catTags || kwChips)
-          ? `<div class="article-tags">${catTags}${kwChips}</div>`
-          : "";
-
-        return `
-          <li>
-            <div class="source-col">
-              <span class="source-tag">${item.source}</span>
-              <span class="lang-tag">${item.lang}</span>
-            </div>
-            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-            ${tagsRow}
-            <div class="meta">${formatTime(item.pubDate)}</div>
-          </li>
-        `;
-      }).join("");
+      list.innerHTML = items.map(item => `
+        <li>
+          <div class="source-col">
+            <span class="source-tag">${item.source}</span>
+            <span class="lang-tag">${item.lang}</span>
+          </div>
+          <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+          <div class="meta">${formatTime(item.pubDate)}</div>
+        </li>
+      `).join("");
     }
 
     // ── START ─────────────────────────────────────────────
