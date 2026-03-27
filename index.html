@@ -424,28 +424,7 @@
     <div class="section-rule"><span>Sources</span></div>
     <div id="feed-tabs"></div>
 
-    <div id="filters">
-      <input type="text" id="search" placeholder="Search headlines..." oninput="applyFilters()">
-
-      <select id="date-filter" onchange="applyFilters()">
-        <option value="">Any time</option>
-        <option value="today">Today</option>
-        <option value="week">This week</option>
-        <option value="month">This month</option>
-      </select>
-
-      <button onclick="resetFilters()">Clear</button>
-
-      <!-- Category filter pills -->
-      <div class="cat-filters">
-        <button class="cat-pill" data-cat="it"       onclick="toggleCat('it')">IT</button>
-        <button class="cat-pill" data-cat="economy"  onclick="toggleCat('economy')">Economy</button>
-        <button class="cat-pill" data-cat="politics" onclick="toggleCat('politics')">Politics</button>
-        <button class="cat-pill" data-cat="lt-news"  onclick="toggleCat('lt-news')">LT News</button>
-      </div>
-    </div>
-
-    <div class="section-rule"><span id="count-label">Headlines</span></div>
+    <div class="section-rule"><span>Headlines</span></div>    
     <ul id="headlines"></ul>
     <p id="empty">No headlines match your filters.</p>
   </main>
@@ -478,9 +457,8 @@
     };
 
     // ── STATE ─────────────────────────────────────────────
-    let allItems      = [];
-    let activeSource  = "All";
-    let activecat     = null; // single active category filter
+    let allItems     = [];
+    let activeSource = "All";
 
     // ── CLOCK ─────────────────────────────────────────────
     function updateClock() {
@@ -614,36 +592,10 @@
 
     // ── APPLY ALL FILTERS ─────────────────────────────────
     function applyFilters() {
-      const keyword   = document.getElementById("search").value.toLowerCase();
-      const dateRange = document.getElementById("date-filter").value;
-
-      const now  = new Date();
-      const cuts = {
-        today: new Date(now - 1000 * 60 * 60 * 24),
-        week:  new Date(now - 1000 * 60 * 60 * 24 * 7),
-        month: new Date(now - 1000 * 60 * 60 * 24 * 30),
-      };
-
-      const filtered = allItems.filter(item => {
-        if (activeSource !== "All" && item.source !== activeSource) return false;
-        if (activecat && !item.categories.includes(activecat))       return false;
-        if (keyword && !item.title.toLowerCase().includes(keyword))  return false;
-        if (dateRange && new Date(item.pubDate) < cuts[dateRange])   return false;
-        return true;
-      });
-
+      const filtered = allItems.filter(item =>
+        activeSource === "All" || item.source === activeSource
+      );
       render(filtered);
-    }
-
-    // ── RESET FILTERS ─────────────────────────────────────
-    function resetFilters() {
-      document.getElementById("search").value      = "";
-      document.getElementById("date-filter").value = "";
-      activeSource = "All";
-      activecat    = null;
-      document.querySelectorAll(".cat-pill").forEach(b => b.classList.remove("active"));
-      buildTabs();
-      applyFilters();
     }
 
     // ── RENDER ────────────────────────────────────────────
